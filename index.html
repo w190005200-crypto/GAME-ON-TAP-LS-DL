@@ -2,9 +2,8 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>FPS - Dark Awakening V15</title>
+    <title>FPS - Flawless Awakening V16</title>
     <style>
-        /* GIAO DIỆN TỐI (DARK NEON) */
         body { margin: 0; overflow: hidden; background: #050510; font-family: 'Segoe UI', Tahoma, sans-serif; user-select: none; }
         #ui { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; padding: 20px; box-sizing: border-box; color: #fff; text-shadow: 1px 1px 3px #000; }
         #crosshair { position: absolute; top: 50%; left: 50%; width: 6px; height: 6px; background: #00ffff; border-radius: 50%; transform: translate(-50%, -50%); box-shadow: 0 0 10px #00ffff; }
@@ -104,7 +103,7 @@
     <script type="module">
         import * as THREE from 'three';
 
-        // BỘ ĐỀ CƯƠNG CHUẨN XÁC 100% 
+        // Bộ 20 câu hỏi
         const quizBank = [
             { q: "1. Vị vua đã có công thống nhất các bộ tộc Lào, lập ra vương quốc Lan Xang là ai?", options: ["A. Xu-li-nha Vông-xa", "B. Pha Ngừm", "C. Giay-a-vác-man II", "D. Chậu A Nụ"], answer: 1 },
             { q: "2. Trước khi vương quốc Lan Xang ra đời, trên lãnh thổ có những tộc người nào sinh sống?", options: ["A. Người Lào Thơng, người Khơ-me.", "B. Người Lào Thơng, người Lào Lùm.", "C. người Thái, người Lào Lùm.", "D. người Khơ-me, người Thái."], answer: 1 }, 
@@ -128,7 +127,7 @@
             { q: "20. Biện pháp nào đang được áp dụng để bảo vệ rừng ở Bắc Mỹ?", options: ["A. Chặt phá rừng tự do.", "B. Quy định chặt chẽ về khai thác và trồng lại rừng.", "C. Chỉ phát triển rừng thông.", "D. Thay thế gỗ bằng nhựa công nghiệp."], answer: 1 }
         ];
 
-        // Âm thanh êm tai 
+        // Âm thanh êm tai
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playSnd(type) {
             if(audioCtx.state === 'suspended') audioCtx.resume();
@@ -182,7 +181,6 @@
 
         function init() {
             scene = new THREE.Scene();
-            // ĐỔI MAP LẠI THÀNH DARK NEON MÁT MẮT
             scene.background = new THREE.Color(0x050510);
             scene.fog = new THREE.FogExp2(0x050510, 0.012);
 
@@ -220,7 +218,6 @@
         }
 
         function createDarkNeonMap() {
-            // Nền đen, lưới cyan
             const canvas = document.createElement('canvas'); canvas.width = 512; canvas.height = 512;
             const ctx = canvas.getContext('2d'); ctx.fillStyle = '#050510'; ctx.fillRect(0,0,512,512);
             ctx.strokeStyle = '#00ffff'; ctx.lineWidth = 2; 
@@ -241,17 +238,15 @@
         }
 
         function setupWeapons() {
-            // KIẾM LASER MÀU ĐỎ ĐẬM (CRIMSON RED)
+            // KIẾM LASER ĐỎ
             playerSword = new THREE.Group();
             const handle = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.4, 8), new THREE.MeshBasicMaterial({color: 0x333333})); handle.position.set(0, -0.2, 0);
             const blade = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 1.8), new THREE.MeshBasicMaterial({color: 0xffffff})); blade.position.set(0, 0.9, 0);
-            // Glow siêu đậm
             const bladeGlow = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 1.8), new THREE.MeshBasicMaterial({color: 0xff0033, transparent: true, opacity: 0.9, blending: THREE.AdditiveBlending})); bladeGlow.position.set(0, 0.9, 0);
             playerSword.add(handle, blade, bladeGlow);
             playerSword.position.set(0.6, -0.4, -0.7);
             camera.add(playerSword);
 
-            // Vệt chém màu đỏ
             slashTrail = new THREE.Group(); 
             const slashMesh = new THREE.Mesh(
                 new THREE.TorusGeometry(3.5, 0.08, 8, 32, Math.PI), 
@@ -261,7 +256,7 @@
             slashTrail.add(slashMesh); slashTrail.position.set(0, 0, -3.5); 
             camera.add(slashTrail);
 
-            // Súng
+            // SÚNG LASER
             playerGun = new THREE.Group();
             const gunBody = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.12, 0.4), new THREE.MeshBasicMaterial({color: 0x111111}));
             const gunBarrel = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.5), new THREE.MeshBasicMaterial({color: 0x333333})); gunBarrel.rotation.x = Math.PI/2; gunBarrel.position.set(0, 0, -0.3);
@@ -271,11 +266,13 @@
             playerGun.position.set(-0.5, -0.3, -0.6); playerGun.visible = false;
             camera.add(playerGun);
 
+            // FINAL SPARK: Thu nhỏ đường kính, tắt ánh sáng lóa, tinh chỉnh độ trong suốt để không cản tầm nhìn
             laserBeamGroup = new THREE.Group();
-            const laserBeamCore = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 0.8, 300, 16), new THREE.MeshBasicMaterial({color: 0xffffff, transparent: true, opacity: 0.6, blending: THREE.AdditiveBlending})); laserBeamCore.rotation.x = -Math.PI/2; laserBeamCore.position.z = -150; 
-            const beamAura = new THREE.Mesh(new THREE.CylinderGeometry(1.5, 1.5, 300, 16), new THREE.MeshBasicMaterial({color: 0x00ffff, transparent: true, opacity: 0.3, blending: THREE.AdditiveBlending})); beamAura.rotation.x = -Math.PI/2; beamAura.position.z = -150;
+            const laserBeamCore = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 300, 16), new THREE.MeshBasicMaterial({color: 0xffffff, transparent: true, opacity: 0.8, blending: THREE.AdditiveBlending})); laserBeamCore.rotation.x = -Math.PI/2; laserBeamCore.position.z = -150; 
+            const beamAura = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.6, 300, 16), new THREE.MeshBasicMaterial({color: 0x00ffff, transparent: true, opacity: 0.4, blending: THREE.AdditiveBlending})); beamAura.rotation.x = -Math.PI/2; beamAura.position.z = -150;
             laserBeamGroup.add(laserBeamCore, beamAura);
             
+            // Đặt thẳng phía trước gun để dọc theo tầm nhìn (tâm chuột)
             laserBeamGroup.position.set(0, 0, -0.5); 
             laserBeamGroup.visible = false; 
             playerGun.add(laserBeamGroup);
@@ -303,7 +300,9 @@
             } while(Math.hypot(spawnX - camera.position.x, spawnZ - camera.position.z) < 30);
             
             group.position.set(spawnX, 3 + Math.random()*4, spawnZ); 
-            group.userData = { hp: 50, speed: 3 + Math.random()*2, lastAttack: 0, bob: Math.random()*10 };
+            
+            // SPEED x 1.5 NHƯ YÊU CẦU
+            group.userData = { hp: 50, speed: (3 + Math.random()*2) * 1.5, lastAttack: 0, bob: Math.random()*10 };
             scene.add(group); enemies.push(group);
         }
 
@@ -313,7 +312,7 @@
             ball.position.copy(enemy.position); ball.position.y -= 1;
             const dir = new THREE.Vector3().subVectors(camera.position, ball.position).normalize();
             scene.add(ball);
-            enemyProjectiles.push({ mesh: ball, dir: dir, speed: 20, age: 0 });
+            enemyProjectiles.push({ mesh: ball, dir: dir, speed: 25, age: 0 }); // Đạn bay nhanh hơn
         }
 
         function updateHPBar() {
@@ -421,17 +420,12 @@
                 enemies.forEach(enemy => { if(Math.hypot(camera.position.x - enemy.position.x, camera.position.z - enemy.position.z) < 7 && Math.abs(camera.position.y - enemy.position.y) < 5) damageEnemy(enemy, 250); });
             } else if (weaponState === 2) { 
                 playSnd('shoot');
-                
-                const gunPos = new THREE.Vector3();
-                playerGun.children[1].getWorldPosition(gunPos); 
-                
+                const gunPos = new THREE.Vector3(); playerGun.children[1].getWorldPosition(gunPos); 
                 const beam = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 50, 8), new THREE.MeshBasicMaterial({color: 0x00ffff, transparent: true, opacity: 0.8, blending: THREE.AdditiveBlending}));
                 const dir = new THREE.Vector3(); camera.getWorldDirection(dir);
-                
                 beam.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir); 
                 beam.position.copy(gunPos).addScaledVector(dir, 25); 
-                scene.add(beam);
-                setTimeout(() => scene.remove(beam), 50);
+                scene.add(beam); setTimeout(() => scene.remove(beam), 50);
                 
                 RAYCASTER.setFromCamera(new THREE.Vector2(0,0), camera);
                 const intersects = RAYCASTER.intersectObjects(enemies, true);
@@ -449,12 +443,10 @@
             if(enemy.userData.hp <= 0) {
                 createExplosion(enemy.position);
                 scene.remove(enemy); enemies = enemies.filter(e => e !== enemy);
-                
                 points += 30; document.getElementById('points').innerText = points;
                 
                 if (questionsAnswered < 20) {
                     killsSinceLastQuiz++; 
-                    // NÂNG MỐC LÊN 25 CON
                     document.getElementById('quiz-progress').innerText = `${killsSinceLastQuiz}/25`;
                     if (killsSinceLastQuiz >= 25) {
                         killsSinceLastQuiz = 0; document.getElementById('quiz-progress').innerText = `0/25`;
@@ -498,23 +490,16 @@
             
             if(currentSkill === 1) { 
                 const rocks = new THREE.Group();
-                for(let i=0; i<60; i++) {
-                    const size = Math.random() * 2 + 1;
-                    const rock = new THREE.Mesh(new THREE.BoxGeometry(size,size,size), new THREE.MeshBasicMaterial({color: 0x554433}));
-                    rock.position.set((Math.random()-0.5)*80, -2, (Math.random()-0.5)*80);
-                    rock.userData = { vy: Math.random()*50 + 20, rx: Math.random(), rz: Math.random() }; rocks.add(rock);
+                for(let i=0; i<30; i++) {
+                    const rock = new THREE.Mesh(new THREE.BoxGeometry(1.5,1.5,1.5), new THREE.MeshBasicMaterial({color: 0xff00ff, wireframe: true}));
+                    rock.position.set((Math.random()-0.5)*50, 0, (Math.random()-0.5)*50); rock.userData = { vy: Math.random()*30 + 10, rx: Math.random(), rz: Math.random() }; rocks.add(rock);
                 }
-                const shockwave = new THREE.Mesh(new THREE.RingGeometry(1, 5, 32), new THREE.MeshBasicMaterial({color: 0xffaa00, transparent: true, opacity: 0.8, side: THREE.DoubleSide}));
-                shockwave.rotation.x = -Math.PI/2; shockwave.position.y = 0.1; rocks.add(shockwave);
-                
                 rocks.position.copy(camera.position); rocks.position.y = 0; scene.add(rocks);
-                
-                activeVFX.push({ mesh: rocks, age: 0, update: function(dt) { this.age += dt; 
-                    shockwave.scale.addScalar(dt * 40); shockwave.material.opacity = 1 - this.age/2.0;
-                    this.mesh.children.forEach((r, idx) => { if(idx < 60) { r.position.y += r.userData.vy * dt; r.userData.vy -= 60 * dt; r.rotation.x += r.userData.rx; r.rotation.z += r.userData.rz; }}); 
-                    camera.position.y += (Math.random()-0.5)*4.0; 
+                activeVFX.push({ mesh: rocks, age: 0, update: function(dt) { this.age += dt; this.mesh.children.forEach(r => { r.position.y += r.userData.vy * dt; r.userData.vy -= 60 * dt; r.rotation.x += r.userData.rx; r.rotation.z += r.userData.rz; }); 
+                    // SỬA LỖI EARTHQUAKE XUYÊN ĐẤT: Chỉ rung trục X và Z (ngang)
+                    camera.position.x += (Math.random()-0.5)*1.5; 
+                    camera.position.z += (Math.random()-0.5)*1.5;
                     if(this.age > 2.0) { scene.remove(this.mesh); return true; } } });
-                
                 enemies.forEach(e => { if(camera.position.distanceTo(e.position)<60) damageEnemy(e, 800); });
                 currentSkill=0; document.getElementById('skill-text').innerText="NONE";
             }
@@ -522,11 +507,24 @@
                 const voidSphere = new THREE.Mesh(new THREE.SphereGeometry(5, 16, 16), new THREE.MeshBasicMaterial({color: 0x000000}));
                 const voidGlow = new THREE.Mesh(new THREE.SphereGeometry(5.5, 16, 16), new THREE.MeshBasicMaterial({color:0xff00ff, wireframe: true, transparent:true, opacity:0.6}));
                 voidSphere.add(voidGlow);
+                
+                // HIỆU ỨNG TỎA RA (SHOCKWAVE RINGS CỦA BLACK HOLE)
+                const pulseRing = new THREE.Mesh(new THREE.RingGeometry(5, 6, 32), new THREE.MeshBasicMaterial({color: 0xaa00ff, transparent: true, opacity: 0.5, side: THREE.DoubleSide}));
+                pulseRing.rotation.x = -Math.PI/2;
+                voidSphere.add(pulseRing);
+
                 for(let i=0; i<50; i++) { const p = new THREE.Mesh(new THREE.BoxGeometry(0.3,0.3,0.3), new THREE.MeshBasicMaterial({color: 0x00ffff})); p.position.set((Math.random()-0.5)*80, (Math.random()-0.5)*80, (Math.random()-0.5)*80); voidSphere.add(p); }
                 const center = camera.position.clone().addScaledVector(new THREE.Vector3(0,0,-1).applyQuaternion(camera.quaternion), 30);
                 voidSphere.position.copy(center); scene.add(voidSphere);
                 
-                activeVFX.push({ mesh: voidSphere, age: 0, duration: 15.0, update: function(dt) { this.age += dt; voidSphere.rotation.y+=0.5; voidSphere.rotation.x+=0.2; voidGlow.material.opacity = 0.5 + Math.sin(this.age*20)*0.5; voidSphere.children.forEach((c, idx) => { if(idx > 0) { c.position.lerp(new THREE.Vector3(0,0,0), 0.08); if(c.position.length() < 5) c.position.set((Math.random()-0.5)*80, (Math.random()-0.5)*80, (Math.random()-0.5)*80); }});
+                activeVFX.push({ mesh: voidSphere, age: 0, duration: 15.0, update: function(dt) { this.age += dt; voidSphere.rotation.y+=0.5; voidSphere.rotation.x+=0.2; voidGlow.material.opacity = 0.5 + Math.sin(this.age*20)*0.5; 
+                    
+                    // Xử lý hiệu ứng vòng tỏa ra liên tục
+                    pulseRing.scale.addScalar(dt * 3);
+                    pulseRing.material.opacity -= dt * 0.8;
+                    if(pulseRing.scale.x > 5) { pulseRing.scale.set(1,1,1); pulseRing.material.opacity = 0.8; }
+
+                    voidSphere.children.forEach((c, idx) => { if(idx > 1) { c.position.lerp(new THREE.Vector3(0,0,0), 0.08); if(c.position.length() < 5) c.position.set((Math.random()-0.5)*80, (Math.random()-0.5)*80, (Math.random()-0.5)*80); }});
                     enemies.forEach(e => { if(center.distanceTo(e.position) < 80) { e.position.lerp(center, 0.05); e.scale.multiplyScalar(0.95); damageEnemy(e, 5); } });
                     if(this.age > this.duration) { scene.remove(this.mesh); enemies.forEach(en => en.scale.set(1,1,1)); return true; } } });
                 currentSkill=0; document.getElementById('skill-text').innerText="NONE";
@@ -563,8 +561,8 @@
             if(isHoldingLaser) {
                 playSnd('beam'); 
                 const core = laserBeamGroup.children[0]; const aura = laserBeamGroup.children[1];
-                core.scale.set(1 + Math.sin(time*50)*0.2, 1, 1 + Math.sin(time*50)*0.2);
-                aura.scale.set(1 + Math.sin(time*30)*0.5, 1, 1 + Math.sin(time*30)*0.5);
+                core.scale.set(1, 1, 1);
+                aura.scale.set(1, 1, 1);
                 
                 const camDir = new THREE.Vector3(); camera.getWorldDirection(camDir);
                 enemies.forEach(enemy => {
@@ -573,10 +571,9 @@
                     if(dist < 150 && camDir.dot(toEnemy) > 0) {
                         const angle = camDir.angleTo(toEnemy);
                         const distToLine = dist * Math.sin(angle); 
-                        if(distToLine < 5.0) damageEnemy(enemy, 20);
+                        if(distToLine < 3.0) damageEnemy(enemy, 20);
                     }
                 });
-                camera.position.x += (Math.random()-0.5)*0.2; 
             }
 
             if(attackTimer > 0 && !isHoldingLaser) {
@@ -628,29 +625,40 @@
                 canJump = onGround;
                 
                 enemies.forEach(enemy => {
-                    enemy.position.y += Math.sin(time * 5 + enemy.userData.bob) * 0.015;
                     const toPlayer = new THREE.Vector3().subVectors(camera.position, enemy.position);
-                    const distY = toPlayer.y;
+                    const distY = toPlayer.y; // Nếu > 0 nghĩa là người chơi đang ở trên cao
                     toPlayer.y = 0; const distXZ = toPlayer.length();
+
+                    // --- AI MỚI QUÁI BIẾT BAY THEO LÊN CAO ---
+                    if (distY > 1.5) {
+                        // Người chơi ở cao hơn -> Quái bay thẳng lên
+                        enemy.position.y += enemy.userData.speed * delta * 0.8;
+                    } else if (distY < -1.5 && enemy.position.y > 2) {
+                        // Bay xuống (không lọt đất)
+                        enemy.position.y -= enemy.userData.speed * delta * 0.8;
+                    } else {
+                        // Lơ lửng bình thường
+                        enemy.position.y += Math.sin(time * 5 + enemy.userData.bob) * 0.015;
+                    }
                     
                     if(distXZ > 4) {
                         toPlayer.normalize();
                         enemy.position.addScaledVector(toPlayer, enemy.userData.speed * delta);
-                        enemy.lookAt(camera.position.x, camera.position.y, camera.position.z);
+                        enemy.lookAt(camera.position.x, enemy.position.y, camera.position.z);
+
+                        // TẦM BẮN TĂNG GẤP ĐÔI (Từ 4 -> 40)
+                        if(distXZ > 4 && distXZ < 40 && time - enemy.userData.lastAttack > 2.5) {
+                            enemy.lookAt(camera.position); 
+                            fireEnemyProjectile(enemy); 
+                            enemy.userData.lastAttack = time;
+                        }
                     } else {
-                        if(distY < -2.5) { 
-                            if(time - enemy.userData.lastAttack > 2.0) {
-                                enemy.lookAt(camera.position); 
-                                fireEnemyProjectile(enemy); 
-                                enemy.userData.lastAttack = time;
-                            }
-                        } else {
-                            if(time - enemy.userData.lastAttack > 1.5) {
-                                playerHP -= 5; updateHPBar(); playSnd('wrong'); 
-                                enemy.userData.lastAttack = time;
-                                const overlay = document.getElementById('hurt-overlay'); overlay.style.opacity = 0.5; setTimeout(() => overlay.style.opacity = 0, 150);
-                                camera.position.addScaledVector(dir, -2);
-                            }
+                        // Đánh Cận chiến nếu sáp vào đủ gần
+                        if(time - enemy.userData.lastAttack > 1.5) {
+                            playerHP -= 5; updateHPBar(); playSnd('wrong'); 
+                            enemy.userData.lastAttack = time;
+                            const overlay = document.getElementById('hurt-overlay'); overlay.style.opacity = 0.5; setTimeout(() => overlay.style.opacity = 0, 150);
+                            camera.position.addScaledVector(dir, -2);
                         }
                     }
                     if(playerHP <= 0 && !isDead) { isDead = true; document.exitPointerLock(); document.getElementById('game-over').style.display = 'flex'; }
